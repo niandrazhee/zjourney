@@ -88,18 +88,17 @@ async function handleSubmit() {
   const dotsWrap = document.getElementById('dotsWrapper');
   const counter  = document.getElementById('slideCounter');
 
-  if (!track || !slides.length) return; // keluar jika elemen tidak ada
+  if (!track || !slides.length) return;
 
   const total = slides.length;
   let current = 0;
-  let autoTimer = null;
 
   // Build dots
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.style.cssText = 'height:8px; border-radius:999px; border:1px solid rgba(212,160,160,0.4); transition:all 0.3s; cursor:pointer;';
     dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-    dot.addEventListener('click', () => { resetAuto(); goTo(i); });
+    dot.addEventListener('click', () => goTo(i));
     dotsWrap.appendChild(dot);
   });
 
@@ -117,17 +116,8 @@ async function handleSubmit() {
     updateDots();
   }
 
-  prevBtn.addEventListener('click', () => { resetAuto(); goTo(current - 1); });
-  nextBtn.addEventListener('click', () => { resetAuto(); goTo(current + 1); });
-
-  // Auto-advance setiap 4 detik
-  function startAuto() {
-    autoTimer = setInterval(() => goTo(current + 1), 4000);
-  }
-  function resetAuto() {
-    clearInterval(autoTimer);
-    startAuto();
-  }
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
 
   // Touch / swipe support (mobile)
   let touchStartX = 0;
@@ -136,9 +126,8 @@ async function handleSubmit() {
   }, { passive: true });
   track.addEventListener('touchend', e => {
     const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) { resetAuto(); goTo(current + (diff > 0 ? 1 : -1)); }
+    if (Math.abs(diff) > 40) goTo(current + (diff > 0 ? 1 : -1));
   });
 
   updateDots();
-  startAuto();
 })();
